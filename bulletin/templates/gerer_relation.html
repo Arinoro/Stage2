@@ -1,0 +1,156 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Gérer les relations par groupes</h2>
+
+    <!-- Formulaire Relation Globale -->
+    <fieldset>
+        <legend>Ajouter une Relation Globale</legend>
+        <form id="form-relation" method="post">
+            {% csrf_token %}
+            
+            <!-- Champ Année -->
+            <div class="form-group">
+                <label for="id_annee">Année</label>
+                <select name="annee" class="form-control" required>
+                    <!-- Vous pouvez ajouter des options ici dynamiquement -->
+                    <option value="">Sélectionnez l'année</option>
+                    {% for annee in annees %}
+                        <option value="{{ annee.id }}">{{ annee.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Champ Classe -->
+            <div class="form-group">
+                <label for="id_classe">Classe</label>
+                <select name="classe" class="form-control" required>
+                    <option value="">Sélectionnez la classe</option>
+                    {% for classe in classes %}
+                        <option value="{{ classe.id }}">{{ classe.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Champ Élève -->
+            <div class="form-group">
+                <label for="id_eleve">Élève</label>
+                <select name="eleve" class="form-control" required>
+                    <option value="">Sélectionnez un élève</option>
+                    {% for eleve in eleves %}
+                        <option value="{{ eleve.id }}">{{ eleve.nom }} {{ eleve.prenom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Champ Numéro -->
+            <div class="form-group">
+                <label for="id_numero">Numéro</label>
+                <select name="numero" class="form-control" required>
+                    <option value="">Sélectionnez un numéro</option>
+                    {% for numero in numeros %}
+                        <option value="{{ numero.id }}">{{ numero.value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Champ Matière Propre -->
+            <div class="form-group">
+                <label for="id_matiere_propre">Matière Propre</label>
+                <select name="matiere_propre" class="form-control" required>
+                    <option value="">Sélectionnez une matière propre</option>
+                    {% for matiere in matieres_propres %}
+                        <option value="{{ matiere.id }}">{{ matiere.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Champ Matière -->
+            <div class="form-group">
+                <label for="id_matiere">Matière</label>
+                <select name="matiere" class="form-control" required>
+                    <option value="">Sélectionnez une matière</option>
+                    {% for matiere in matieres %}
+                        <option value="{{ matiere.id }}">{{ matiere.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Ajouter Relation</button>
+        </form>
+    </fieldset>
+
+    <!-- Affichage des relations ajoutées -->
+    <div class="mt-5">
+        <h3>Liste des Relations</h3>
+        <table class="table table-striped" id="table-relations">
+            <thead>
+                <tr>
+                    <th>Année</th>
+                    <th>Classe</th>
+                    <th>Élève</th>
+                    <th>Numéro</th>
+                    <th>Matière Propre</th>
+                    <th>Matière</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for relation in relations %}
+                    <tr>
+                        <td>{{ relation.annee }}</td>
+                        <td>{{ relation.classe }}</td>
+                        <td>{{ relation.eleve }}</td>
+                        <td>{{ relation.numero }}</td>
+                        <td>{{ relation.matiere_propre }}</td>
+                        <td>{{ relation.matiere }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Fonction pour gérer la soumission du formulaire via AJAX
+    document.getElementById('form-relation').addEventListener('submit', function (e) {
+        e.preventDefault(); // Empêcher la soumission normale du formulaire
+
+        const form = e.target;
+        const formData = new FormData(form);
+
+        fetch('{% url "gerer_relation" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Ajouter la nouvelle relation dans le tableau
+                const tableBody = document.getElementById('table-relations').getElementsByTagName('tbody')[0];
+                const newRow = tableBody.insertRow();
+                newRow.innerHTML = `
+                    <td>${data.relation.annee}</td>
+                    <td>${data.relation.classe}</td>
+                    <td>${data.relation.eleve}</td>
+                    <td>${data.relation.numero}</td>
+                    <td>${data.relation.matiere_propre}</td>
+                    <td>${data.relation.matiere}</td>
+                `;
+                // Optionnel : Réinitialiser le formulaire
+                form.reset();
+            } else {
+                // Afficher les erreurs si elles existent
+                alert('Erreur : ' + JSON.stringify(data.errors));
+            }
+        })
+        .catch(error => {
+            console.error('Erreur réseau :', error);
+        });
+    });
+</script>
+
+{% endblock %}

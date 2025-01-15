@@ -1,0 +1,124 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .table {
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    .text-warning {
+        color: #ffc107;
+    }
+    .text-center h2 {
+        margin-bottom: 20px;
+    }
+    .text-danger {
+        color: #dc3545;
+    }
+</style>
+
+<div class="container mt-3">
+    <h2 class="text-center">Liste des Notes</h2>
+
+    <!-- Boutons d'actions -->
+    <div class="text-end mb-3">
+        <a href="{% url 'ajouter_note' %}" class="btn btn-outline-primary">Ajouter notes</a>
+        <a href="{% url 'note_list' %}" class="btn btn-outline-primary">Ajouter notes</a>
+    </div>
+
+    <!-- Table des notes -->
+    <div class="table-responsive mb-5">
+        <table class="table table-striped table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Élève</th>
+                    <th>Classe</th>
+                    <th>Matière</th>
+                    <th>Note</th>
+                    <th>Trimestre</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doublon in doublons_avec_matiere_et_notes.values %}
+                    {% for matiere_note in doublon.matieres_notes %}
+                    <tr>
+                        {% if forloop.first %}
+                            <!-- Affichage du nom de l'élève et de la classe une seule fois -->
+                            <td rowspan="{{ doublon.matieres_notes|length }}">{{ doublon.eleve_nom }}</td>
+                            <td rowspan="{{ doublon.matieres_notes|length }}">{{ doublon.classe_libelle }}</td>
+                        {% endif %}
+                        <td>{{ matiere_note.matiere }}</td>
+                        <td>{{ matiere_note.note }}</td>
+                        <td>{{ matiere_note.periode }}</td>
+                        <td>
+                            {% if typeutilisateur == 'Directeur' %}
+                                <a href="" class="text-warning" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" class="text-danger ms-3 delete-note" data-id="{{ matiere_note.idnote }}" data-name="{{ doublon.eleve_nom }}" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Aucune action</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">Aucune note disponible.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        $('.delete-note').on('click', function(event) {
+            event.preventDefault();
+            var noteId = $(this).data('id');
+            var noteName = $(this).data('name');
+            var row = $(this).closest('tr');
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Vous allez supprimer la note de l'élève '" + noteName + "' !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "note_delete" 0 %}'.replace('0', noteId),
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire('Supprimé !', 'La note a été supprimée avec succès.', 'success').then(() => {
+                                    row.remove();
+                                });
+                            } else {
+                                Swal.fire('Erreur !', response.error || 'Une erreur s\'est produite lors de la suppression.', 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire('Erreur !', 'Une erreur s\'est produite. Veuillez réessayer.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

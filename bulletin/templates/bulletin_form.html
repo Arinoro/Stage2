@@ -1,0 +1,62 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Créer un Bulletin</h2>
+    <form id="bulletinForm" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="eleve" class="form-label">Élève</label>
+            <select name="eleve" id="eleve" class="form-select" required>
+                {% for eleve in eleves %}
+                    <option value="{{ eleve.id }}">{{ eleve.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="classe" class="form-label">Classe</label>
+            <select name="classe" id="classe" class="form-select" required>
+                {% for classe in classes %}
+                    <option value="{{ classe.id }}">{{ classe.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="trimester" class="form-label">Trimestre</label>
+            <select name="trimester" id="trimester" class="form-select" required>
+                <option value="1">1er Trimestre</option>
+                <option value="2">2ème Trimestre</option>
+                <option value="3">3ème Trimestre</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Créer</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('bulletinForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch("{% url 'bulletin_create' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'  // Assurez-vous d'inclure le token CSRF dans l'en-tête
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.href = "{% url 'bulletin_list' %}";  // Redirection après succès
+            } else {
+                alert('Une erreur est survenue : ' + data.message);  // Affichage d'un message d'erreur si l'échec
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue lors de la soumission du formulaire.');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+<!-- templates/coefficient_list.html -->
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Liste des Coefficients</h2>
+    <a href="{% url 'coefficient_create' %}">
+        <button type="button" class="btn btn-outline-primary">
+            Ajouter un Coefficient
+        </button>
+    </a>
+    <a href="{% url 'matiere_list' %}">
+        <button type="button" class="btn btn-outline-secondary">
+            Retour au Matière
+        </button>
+    </a>
+    <!-- Adjust the table width to 70% and center it -->
+    <div class="table-responsive" style="max-width: 50%; margin: auto;">
+        <table class="table table-striped">
+            <thead style="background-color: #007bff; color: white;"> <!-- Blue background for thead -->
+                <tr>
+                    <th>Coefficient</th>
+                    <th style="width: 10%;">Actions</th> <!-- Adjust the width of the actions column -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for coefficient in coefficients %}
+                <tr>
+                    <td>{{ coefficient.coeff }}</td>
+                    <td style="width: 10%;">
+                        <a href="{% url 'coefficient_update' coefficient.pk %}" class="text-primary" title="Modifier">
+                            <i class="fas fa-edit"></i> <!-- Edit icon -->
+                        </a>
+                        <a href="{% url 'coefficient_delete' coefficient.pk %}" class="text-danger ms-3" title="Supprimer"> <!-- Add margin-left -->
+                            <i class="fas fa-trash"></i> <!-- Delete icon -->
+                          </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Include SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle delete button clicks
+    document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const coefficientId = this.getAttribute('data-id');
+            const row = this.closest('tr');
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Vous ne pourrez pas récupérer ce coefficient !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, supprimer !'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`{% url 'coefficient_delete' 0 %}`.replace('0', coefficientId), {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            Swal.fire(
+                                'Supprimé !',
+                                'Le coefficient a été supprimé.',
+                                'success'
+                            );
+                            row.remove(); // Remove the row from the table
+                        } else {
+                            Swal.fire(
+                                'Erreur !',
+                                'Il y a eu un problème avec la suppression.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Erreur !',
+                            'Il y a eu un problème avec la suppression.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

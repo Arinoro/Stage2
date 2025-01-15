@@ -1,0 +1,47 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Notes des Élèves par Classe</h2>
+    <a href="{% url 'note_list' %}">
+        <button type="button" class="btn btn-outline-primary">
+            Ajouter Notes
+        </button>
+    </a>
+    <!-- Filter by Class -->
+    <form method="get" class="mb-4">
+        <label for="class_filter" class="form-label">Sélectionner une Classe</label>
+        <select id="class_filter" name="class_id" class="form-select" onchange="this.form.submit()">
+            <option value="">Sélectionner une Classe</option>
+            {% for classe in classes %}
+                <option value="{{ classe.idclasse }}" {% if classe.idclasse|stringformat:"s" == selected_class_id %}selected{% endif %}>
+                    {{ classe.libelleclasse }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- Students and their grades -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Élève</th>
+                    {% for matiere in matieres %}
+                        <th>{{ matiere.nommat }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for student, grades in grades_by_class.items %}
+                    <tr>
+                        <td>{{ student.num_matricule }}</td>
+                        {% for matiere in matieres %}
+                            <td>{{ grades.matiere.id_coeff|default:'' }}</td>  <!-- Utilisation de la syntaxe correcte -->
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>        
+    </div>
+</div>
+{% endblock %}

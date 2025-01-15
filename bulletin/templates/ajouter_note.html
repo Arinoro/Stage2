@@ -1,0 +1,72 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Ajouter une Note</h2>
+    <form method="post" id="form-ajouter-note">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="row">
+            <!-- Champs du formulaire -->
+            {% for field in form %}
+            <div class="col-md-6 mb-3">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger">{{ field.errors|join:", " }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+    </form>
+</div>
+
+<script>
+    // Fonction pour récupérer les élèves d'une classe sélectionnée
+    function updateEleves(classeId) {
+        fetch(`/ajouter_note/?classe_id=${classeId}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            let eleveSelect = document.querySelector('select[name="eleve"]');
+            eleveSelect.innerHTML = ''; // Réinitialiser la liste des élèves
+
+            // Ajouter un option vide pour inviter l'utilisateur à sélectionner
+            let defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Sélectionnez un élève';
+            eleveSelect.appendChild(defaultOption);
+
+            // Ajouter les élèves de la classe sélectionnée
+            data.eleves.forEach(eleve => {
+                let option = document.createElement('option');
+                option.value = eleve.id;
+                option.textContent = `${eleve.nom} ${eleve.prenom}`;
+                eleveSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Erreur:', error));
+    }
+
+    // Ajout d'un écouteur d'événement sur le champ de sélection de la classe
+    document.querySelector('select[name="classe"]').addEventListener('change', function() {
+        let classeId = this.value;
+        if (classeId) {
+            updateEleves(classeId);
+        } else {
+            // Si aucune classe n'est sélectionnée, réinitialiser le select des élèves
+            let eleveSelect = document.querySelector('select[name="eleve"]');
+            eleveSelect.innerHTML = '';
+            let defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Sélectionnez un élève';
+            eleveSelect.appendChild(defaultOption);
+        }
+    });
+</script>
+{% endblock %}

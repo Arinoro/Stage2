@@ -1,0 +1,140 @@
+{% load static %}
+<!doctype html>
+<html class="no-js" lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Inscription</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/fontawesome.min.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #343a40;
+        }
+
+        .card {
+            width: 50%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: transparent;
+            color: black;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+
+        .card-header img {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .card-header h3 {
+            margin-left: 60px; /* Décale le titre */
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .card-body {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .form-group input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.6);
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .text-primary {
+            color: #4CAF50 !important;
+        }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center vh-100">
+
+    <div class="card shadow-lg">
+        <div class="card-header">
+            <img src="{% static 'img/logoCPE.jpg' %}" alt="Logo">
+            <h3>Inscription</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="pseudoutilisateur" class="form-label">
+                            <i class="fa fa-user"></i> Pseudo
+                        </label>
+                        {{ form.pseudoutilisateur }}
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="nomutilisateur" class="form-label">
+                            <i class="fa fa-user-circle"></i> Nom
+                        </label>
+                        {{ form.nomutilisateur }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="typeutilisateur" class="form-label">
+                            <i class="fa fa-user-tag"></i> Type d'utilisateur
+                        </label>
+                        {{ form.typeutilisateur }}
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="imguser" class="form-label">
+                            <i class="fa fa-image"></i> Photo de profil
+                        </label>
+                        {{ form.imguser }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="motdepasse" class="form-label">
+                            <i class="fa fa-lock"></i> Mot de passe
+                        </label>
+                        {{ form.motdepasse }}
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="confirm_password" class="form-label">
+                            <i class="fa fa-lock"></i> Confirmez le mot de passe
+                        </label>
+                        {{ form.confirm_password }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
+            </form>
+            
+            <hr>
+            <p class="text-center">Déjà un compte ? <a href="{% url 'login' %}" class="text-primary">Se connecter</a></p>
+        </div>
+    </div>
+
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Liste des Bulletins</h2>
+
+    <!-- Filtre par classe -->
+    <form method="get" class="mb-3">
+        <label for="classe">Filtrer par classe :</label>
+        <select name="classe_id" id="classe" class="form-select" onchange="this.form.submit()">
+            <option value="">Toutes les classes</option>
+            {% for classe in classes %}
+                <option value="{{ classe.id }}" {% if selected_classe == classe.id %}selected{% endif %}>
+                    {{ classe.nom }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- Tableau des bulletins -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Élève</th>
+                <th>Classe</th>
+                <th>Trimestre</th>
+                <th>Moyenne</th>
+                <th>Rang</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bulletin in bulletins %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ bulletin.eleve.nom }}</td>
+                    <td>{{ bulletin.classe.nom }}</td>
+                    <td>{{ bulletin.get_trimester_display }}</td>
+                    <td>{{ bulletin.moyenne_periode|floatformat:2 }}</td>
+                    <td>{{ bulletin.rang }}</td>
+                    <td>
+                        <a href="{% url 'bulletin_update' bulletin.id %}" class="btn btn-primary btn-sm">Modifier</a>
+                        <button class="btn btn-danger btn-sm" onclick="deleteBulletin({{ bulletin.id }})">Supprimer</button>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">Aucun bulletin trouvé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function deleteBulletin(id) {
+        if (confirm("Êtes-vous sûr de vouloir supprimer ce bulletin ?")) {
+            fetch(`/bulletin/delete/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'  // Ajoutez le token CSRF pour sécuriser la requête
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();  // Recharger la page pour refléter la suppression
+                } else {
+                    alert('Une erreur est survenue lors de la suppression.');
+                }
+            })
+            .catch(error => {
+                alert('Erreur de connexion.');
+            });
+        }
+    }
+</script>
+{% endblock %}

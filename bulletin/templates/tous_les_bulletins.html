@@ -1,0 +1,64 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="text-center">Sélectionner une Classe pour Voir les Bulletins</h2>
+
+    <!-- Formulaire de sélection de la classe -->
+    <form method="get" action="{% url 'tous_les_bulletins' class_id=selected_class.idclasse %}" class="mb-4">
+        <div class="form-group">
+            <label for="class_filter">Classe :</label>
+            <select name="class_id" id="class_filter" class="form-select" onchange="this.form.submit()">
+                <option value="">Sélectionner une classe</option>
+                {% for classe in classes %}
+                    <option value="{{ classe.idclasse }}" {% if classe.idclasse|stringformat:"s" == selected_class.idclasse|stringformat:"s" %}selected{% endif %}>
+                        {{ classe.libelleclasse }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    {% if selected_class %}
+        <h2 class="text-center">Bulletins de la Classe {{ selected_class.libelleclasse }}</h2>
+
+        <div class="text-end mb-4">
+            <button class="btn btn-success" onclick="window.print()">Imprimer Tous les Bulletins</button>
+        </div>
+
+        {% if bulletins %}
+            <div class="accordion" id="accordionExample">
+                {% for bulletin in bulletins %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
+                                Bulletin de {{ bulletin.eleve.nom }} {{ bulletin.eleve.prenom }} (N° Matricule : {{ bulletin.eleve.nummatricule }})
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <h5>Moyenne Générale : {{ bulletin.moyenne_generale }}</h5>
+                                <ul class="list-group mb-4">
+                                    {% for note in bulletin.notes.all %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ note.matiere.nom }} : {{ note.note }}
+                                            <span class="badge bg-primary rounded-pill">{{ note.coefficient }}x</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center">Aucun bulletin trouvé pour cette classe.</p>
+        {% endif %}
+    {% else %}
+        <p class="text-center">Veuillez sélectionner une classe pour voir les bulletins.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

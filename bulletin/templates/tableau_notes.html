@@ -1,0 +1,139 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Ajuster la taille des icônes */
+    .action-icons i {
+        font-size: 1.2em; /* Taille ajustée pour les icônes */
+    }
+    /* Couleur de l'icône de modification en jaune */
+    .text-warning {
+        color: yellow;
+    }
+    /* Réduire la largeur de la colonne d'action */
+    .action-column {
+        width: 100px; /* Largeur ajustée pour la colonne action */
+        text-align: center; /* Centrer les icônes */
+    }
+</style>
+
+<div class="container mt-4">
+    <h1 class="text-center">Tableau des Notes</h1>
+
+    <!-- Formulaire pour sélectionner une classe -->
+    <form method="GET" class="mb-3">
+        <div class="row">
+            <div class="col-md-6">
+                <select name="classe" class="form-select" onchange="this.form.submit()">
+                    <option value="">Sélectionnez une classe</option>
+                    {% for classe in classes %}
+                        <option value="{{ classe.id }}" {% if classe.id == selected_classe %}selected{% endif %}>
+                            {{ classe.nom }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tableau des résultats -->
+    <table class="table table-striped mt-4">
+        <thead style="background-color: #007bff; color: white;">
+            <tr>
+                <th>Élève</th>
+                <th>Matière</th>
+                <th>Note</th>
+                <th>Coefficient</th>
+                <th>Note Pondérée</th>
+                <th>Moyenne</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for resultat in resultats %}
+                <tr>
+                    <td rowspan="{{ resultat.details_notes|length }}">{{ resultat.eleve.nom }} {{ resultat.eleve.prenom }}</td>
+                    {% for detail in resultat.details_notes %}
+                        {% if not forloop.first %}<tr>{% endif %}
+                        <td>{{ detail.matiere }}</td>
+                        <td>{{ detail.note }}</td>
+                        <td>{{ detail.coefficient }}</td>
+                        <td>{{ detail.note_ponderee }}</td>
+                        {% if forloop.first %}
+                            <td rowspan="{{ resultat.details_notes|length }}">{{ resultat.moyenne }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <!-- Ajouter une matière -->
+    <a href="{% url 'matiere_create' %}">
+        <button type="button" class="btn btn-outline-primary">
+            Ajouter une Matière
+        </button>
+    </a>
+
+</div>
+
+<!-- Chargement de jQuery et SweetAlert -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        // Fonction de suppression avec SweetAlert et AJAX
+        $('.delete-matiere').on('click', function(event) {
+            event.preventDefault();
+            var matiereId = $(this).data('id');
+            var matiereName = $(this).data('name');
+            var row = $(this).closest('tr');
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Vous allez supprimer la matière '" + matiereName + "' !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "matiere_delete" 0 %}'.replace('0', matiereId),
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire(
+                                    'Supprimé !',
+                                    'La matière a été supprimée avec succès.',
+                                    'success'
+                                ).then(() => {
+                                    row.remove();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Erreur !',
+                                    'Une erreur s\'est produite lors de la suppression.',
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire(
+                                'Erreur !',
+                                'Une erreur s\'est produite. Veuillez réessayer.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

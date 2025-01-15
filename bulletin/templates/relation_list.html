@@ -1,0 +1,140 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Gerer année scolaire</h2>
+
+    <!-- Bouton Créer une nouvelle entrée -->
+    <a href="{% url 'relation_create' %}" class="btn btn-outline-primary mb-3">
+        Créer une nouvelle relation
+    </a>
+    
+    {% comment %} <!-- Bouton pour ouvrir la page Gérer Relations -->
+    <a href="{% url 'gerer_relation' %}" class="btn btn-outline-success mb-3">
+        Gérer les relations
+    </a> {% endcomment %}
+
+    <table class="table table-striped table-bordered">
+        <thead class="bg-primary text-white">
+            <tr>
+                <th>ID</th>
+                <th>Année</th>
+                <th>Classe</th>
+                <th>Élève</th>
+                <th>Numéro</th>
+                <th>Matière Propre</th>
+                <th>Matière</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for relation in relations %}
+            <tr id="relation-{{ relation.idrelation }}">
+                <td>{{ relation.idrelation }}</td>
+                <td>{{ relation.annee }}</td>
+                <td>{{ relation.classe }}</td>
+                <td>{{ relation.eleve }}</td>
+                <td>{{ relation.numero }}</td>
+                <td>{{ relation.matiere_propre }}</td>
+                <td>{{ relation.matiere }}</td>
+                <td class="text-center">
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'relation_update' relation.idrelation %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button class="btn btn-danger btn-sm supprimer-relation" data-id="{{ relation.idrelation }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- CSS spécifique -->
+<style>
+    .badge {
+        color: black;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+    .btn-group .btn {
+        margin-right: 5px;
+    }
+
+    .btn-group .btn i {
+        font-size: 18px;
+    }
+</style>
+
+<!-- Ajout de Font Awesome -->
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
+<!-- SweetAlert pour suppression -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.querySelectorAll('.supprimer-relation').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            const relationId = this.getAttribute('data-id');
+            const row = document.getElementById(`relation-${relationId}`);
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Vous êtes sur le point de supprimer cette relation.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, supprimer !'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/supprimer_relation_ajax/${relationId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erreur réseau ou serveur');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            row.remove();  
+                            Swal.fire(
+                                'Supprimée !',
+                                'La relation globale a été supprimée.',
+                                'success'
+                            );
+                        } else {
+                            Swal.fire(
+                                'Erreur !',
+                                'Une erreur est survenue, veuillez réessayer.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur AJAX :', error);
+                        Swal.fire(
+                            'Erreur !',
+                            'Impossible de contacter le serveur.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

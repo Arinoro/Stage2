@@ -1,0 +1,93 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <style>
+        /* Centrer le formulaire */
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 70vh;
+        }
+
+        /* Style du formulaire */
+        .form-content {
+            background-color: #ffffff; /* Fond blanc */
+            padding: 30px;            /* Espacement interne */
+            border-radius: 10px;      /* Coins arrondis */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Ombre */
+            width: 100%;
+            max-width: 600px;         /* Largeur maximale */
+            border: 1px solid #007bff; /* Bordure bleue */
+        }
+
+        /* Style des champs */
+        .form-content input, 
+        .form-content select, 
+        .form-content textarea {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            transition: 0.3s;
+        }
+
+        /* Focus sur les champs */
+        .form-content input:focus, 
+        .form-content select:focus, 
+        .form-content textarea:focus {
+            border-color: #007bff;
+            background-color: #ffffff;
+            outline: none;
+        }
+
+        /* Style des boutons */
+        .form-content .btn {
+            border-radius: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-content .btn-success {
+            background-color: #28a745;
+            border: none;
+        }
+
+        .form-content .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .form-content .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+
+        .form-content .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
+
+    <div class="form-container">
+        <h1 class="mb-4 text-center">
+            {% if object %}Modifier{% else %}Créer{% endif %} une Relation
+        </h1>
+        <div class="form-content">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                    <a href="{% url 'relation_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

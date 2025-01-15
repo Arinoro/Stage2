@@ -1,0 +1,126 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Ajuster la taille des icônes */
+    .action-icons i {
+        font-size: 1.2em; /* Taille ajustée pour les icônes */
+    }
+    /* Couleur de l'icône de modification en jaune */
+    .text-warning {
+        color: yellow;
+    }
+    /* Réduire la largeur de la colonne d'action */
+    .action-column {
+        text-align: center; /* Centrer les icônes */
+    }
+    /* Ajouter une bordure arrondie au tableau */
+    .table {
+        border-radius: 5px; /* Bordure arrondie */
+        overflow: hidden; /* Pour appliquer l'arrondi correctement */
+    }
+</style>
+
+<div class="container mt-3">
+    <h2 class="text-center">Liste des Matières</h2>
+
+    <!-- Ajouter une matière -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'matiere_propre_create' %}">
+            <button type="button" class="btn btn-outline-primary">
+                Ajouter une Matière
+            </button>
+        </a>
+    </div>
+
+    <!-- Table des matières -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Nom de la Matière</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for matiere_propre in matieres_propres %}
+                <tr>
+                    <td>{{ matiere_propre.nommatiere }}</td>
+                    <td class="action-column action-icons">
+                        <a href="{% url 'matiere_propre_update' matiere_propre.pk %}" class="text-warning" title="Modifier">
+                            <i class="fas fa-edit"></i> <!-- Icône de modification en jaune -->
+                        </a>
+                        <a href="#" class="text-danger ms-3 delete-matiere" data-id="{{ matiere_propre.pk }}" title="Supprimer">
+                            <i class="fas fa-trash"></i> <!-- Icône de suppression en rouge -->
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Chargement de jQuery et SweetAlert -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        // Fonction de suppression avec SweetAlert et AJAX
+        $('.delete-matiere').on('click', function(event) {
+            event.preventDefault();  // Empêche le rechargement de la page
+            var matiereId = $(this).data('id');
+            var matiereName = $(this).data('name');
+            var row = $(this).closest('tr');  // Cible la ligne à supprimer
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Vous allez supprimer la matière '" + matiereName + "' !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "matiere_propre_delete" 0 %}'.replace('0', matiereId),  // Remplacement de l'ID dynamique
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'  // Inclusion du CSRF token pour Django
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire(
+                                    'Supprimé !',
+                                    'La matière a été supprimée avec succès.',
+                                    'success'
+                                ).then(() => {
+                                    // Supprimer la ligne sans recharger la page
+                                    row.remove();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Erreur !',
+                                    'Une erreur s\'est produite lors de la suppression.',
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire(
+                                'Erreur !',
+                                'Une erreur s\'est produite. Veuillez réessayer.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Sélectionner une Classe pour Générer les Bulletins</h2>
+    
+    {% if selected_class %}
+    <div class="text-end mb-4">
+        <a href="{% url 'tous_les_bulletins' selected_class.idclasse %}" class="btn btn-info">Voir Tous les Bulletins</a>
+    </div>
+    {% endif %}
+
+    <!-- Formulaire de sélection de classe -->
+    <form method="get" action="{% url 'bulletin_par_classe' %}" class="mb-4">
+        <div class="form-group">
+            <label for="class_filter">Classe :</label>
+            <select name="class_id" id="class_filter" class="form-select" onchange="this.form.submit()">
+                <option value="">Sélectionner une classe</option>
+                {% for classe in classes %}
+                <option value="{{ classe.idclasse }}" {% if classe.idclasse|stringformat:"s" == selected_class_id %}selected{% endif %}>
+                    {{ classe.libelleclasse }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+    
+    {% if eleves %}
+        <h3 class="text-center">Moyennes par Trimestre des Élèves de la Classe {{ selected_class.libelleclasse }}</h3>
+        
+        <!-- Tableau des moyennes des élèves -->
+        <table class="table table-bordered table-sm table-responsive-sm" style="font-size: 14px;">
+            <thead>
+                <tr>
+                    <th>Nom de l'élève</th>
+                    <th>N° Matricule</th>
+                    <th>1er Trimestre</th>
+                    <th>2ème Trimestre</th>
+                    <th>3ème Trimestre</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eleve_data in eleves %}
+                <tr>
+                    <td>{{ eleve_data.eleve.nom }} {{ eleve_data.eleve.prenom }}</td>
+                    <td>{{ eleve_data.eleve.nummatricule }}</td>
+                    <td>
+                        {{ eleve_data.moyennes.1ème_trimestre|floatformat:2 |default:"N/A" }}
+                    </td>
+                    <td>
+                        {{ eleve_data.moyennes.2ème_trimestre|floatformat:2 |default:"N/A" }}
+                    </td>
+                    <td>
+                        {{ eleve_data.moyennes.3ème_trimestre|floatformat:2 |default:"N/A" }}
+                    </td>
+                    <td>
+                        <a href="{% url 'bulletin_par_eleve' eleve_data.eleve.nummatricule %}" class="btn btn-secondary btn-sm">Voir Bulletin</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center">Aucun élève trouvé pour cette classe.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

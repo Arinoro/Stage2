@@ -1,0 +1,128 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Liste des Années Scolaires</h2>
+    <br>
+    <!-- Bouton Ajouter Année Scolaire -->
+    <a href="{% url 'tableau_de_bord_chart' %}" class="btn btn-outline-primary mb-3">
+        Acceuil
+    </a> 
+
+    <table class="table table-striped table-bordered">
+        <thead class="bg-primary text-white">
+            <tr>
+                <th>ID</th>
+                <th>Année Scolaire</th>
+                <th>Date Début</th>
+                <th>Date Fin</th>
+                <th>Statut</th>
+                <th class="text-center" style="width: 0%;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for annee in annees %}
+            <tr id="annee-{{ annee.idannee }}">
+                <td>{{ annee.idannee }}</td>
+                <td>{{ annee.anneescolaire }}</td>
+                <td>{{ annee.datedebut|date:"d F Y" }}</td>
+                <td>{{ annee.datefin|date:"d F Y" }}</td>
+                <td>
+                    {% if annee.encours == 1 %}
+                        <span class="badge badge-success">Activée</span>
+                    {% else %}
+                        <span class="badge badge-dark">Désactivée</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    <div class="btn-group" role="group">
+                        {% if annee.encours == 0 %}
+                        <a href="{% url 'activer_annee' annee.idannee %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-check"></i>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'annee_update' annee.idannee %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </a>
+
+                        <!-- Bouton Supprimer avec confirmation via SweetAlert -->
+                        <button class="btn btn-danger btn-sm supprimer-annee" data-id="{{ annee.idannee }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Style -->
+<style>
+    .badge-dark {
+        color: #000;         
+    }
+    .badge-success{
+        color: #000;
+    }
+</style>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.querySelectorAll('.supprimer-annee').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            const anneeId = this.getAttribute('data-id');
+            const row = document.getElementById(`annee-${anneeId}`);
+
+            // SweetAlert pour la confirmation de suppression
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Vous êtes sur le point de supprimer cette année.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, supprimer !'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Envoi de la requête AJAX pour supprimer l'année scolaire
+                    fetch(`/supprimer_annee_ajax/${anneeId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            row.remove();  // Supprimer la ligne du tableau
+                            Swal.fire(
+                                'Supprimée !',
+                                'L\'année scolaire a été supprimée.',
+                                'success'
+                            );
+                        } else {
+                            Swal.fire(
+                                'Erreur !',
+                                'Une erreur est survenue, veuillez réessayer.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur AJAX :', error);
+                        Swal.fire(
+                            'Erreur !',
+                            'Impossible de contacter le serveur.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Bulletin de Notes - PDF</title>
+    <style>
+        .header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h2, h3, th, td {
+            text-align: center;
+        }
+        .align-left {
+            text-align: left;
+        }
+        .center-text {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center; /* Centrer le texte dans le pied de page */
+        }
+        .highlighted-title {
+            background-color: #d3d3d3;
+            border: 2px solid black;
+            padding: 10px;
+        }
+        .header img {
+            max-width: 100px;
+            height: auto;
+            margin-left: 0;
+        }
+        .header .center-text {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .decision {
+            margin-top: 20px;
+            text-align: left; /* Aligné à gauche */
+            font-size: 1em; /* Taille normale */
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img src="/static/img/logoCPE.jpg" alt="Logo Lycée Privé CPE">
+    <div class="center-text">
+        <h2>LYCEE PRIVE CPE</h2>
+        <p>CHALLENGE and PROMOTE EDUCATION<br>Annexe Fianarantsoa<br>Tél. 038 92 749 27</p>
+    </div>
+</div>
+
+<h3 class="highlighted-title">RELEVE DES NOTES<br>Année scolaire : 2023 - 2024</h3>
+
+<p class="align-left">
+    <span style="display: inline-block; width: 150px; text-align: left;"><strong>Nom </strong></span><span style="display: inline-block; width: 10px;">&nbsp;</span>: {{ eleve.nom }}<br>
+    <span style="display: inline-block; width: 150px; text-align: left;"><strong>Prénom(s) </strong></span><span style="display: inline-block; width: 10px;">&nbsp;</span>: {{ eleve.prenom }}<br>
+    <span style="display: inline-block; width: 150px; text-align: left;"><strong>Date de naissance </strong></span><span style="display: inline-block; width: 10px;">&nbsp;</span>: {{ eleve.datenaissance|date:"d/m/Y" }}<br>
+    <span style="display: inline-block; width: 150px; text-align: left;"><strong>Classe </strong></span><span style="display: inline-block; width: 10px;">&nbsp;</span>: {{ ance.idclasse.libelleclasse }}<br>
+    <span style="display: inline-block; width: 150px; text-align: left;"><strong>Numéro </strong></span><span style="display: inline-block; width: 10px;">&nbsp;</span>: {{ eleve.numero }}<br> <!-- Nouvelle ligne ajoutée -->
+    <span style="display: inline-block; width: 150px; text-align: left;"><strong>N° matricule </strong></span><span style="display: inline-block; width: 10px;">&nbsp;</span>: {{ eleve.nummatricule }}
+</p>
+
+<h3>{{ selected_trimester|add:"ème Trimestre" }}</h3>
+<table>
+    <thead>
+        <tr>
+            <th rowspan="2" style="text-align: center;">MATIERES</th>
+            <th rowspan="2" style="text-align: center; writing-mode: vertical-rl; transform: rotate(180deg);">
+                Coefficient
+            </th>
+            <th colspan="2">1<sup>ère</sup> période</th>
+            <th colspan="2">2<sup>ème</sup> période</th>
+        </tr>
+        <tr>
+            <th style="text-align: center; writing-mode: vertical-rl; transform: rotate(180deg);">Notes</th>
+            <th style="text-align: center; writing-mode: vertical-rl; transform: rotate(180deg);">Notes déf.</th>
+            <th style="text-align: center; writing-mode: vertical-rl; transform: rotate(180deg);">Notes</th>
+            <th style="text-align: center; writing-mode: vertical-rl; transform: rotate(180deg);">Notes déf.</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for note in notes_ponderees %}
+        <tr>
+            <td style="text-align: center;">{{ note.matiere }}</td>  <!-- Matière centrée -->
+            <td>{{ note.coefficient }}</td>
+            <td>{{ note.note_periode_1|default:0|floatformat:2 }}</td> <!-- Note avec défaut à 0 -->
+            <td>{{ note.note_definitive_1|default:0|floatformat:2 }}</td> <!-- Note avec défaut à 0 -->
+            <td>{{ note.note_periode_2|default:0|floatformat:2 }}</td> <!-- Note avec défaut à 0 -->
+            <td>{{ note.note_definitive_2|default:0|floatformat:2 }}</td> <!-- Note avec défaut à 0 -->
+        </tr>
+        {% endfor %}
+        <tr>
+            <td style="text-align: left;">Total</td>
+            <td></td>
+            <td colspan="2">{{ total_note_periode_1|floatformat:2 }} / 400</td>
+            <td colspan="2">{{ total_note_periode_2|floatformat:2 }} / 400</td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Moyenne</td>
+            <td rowspan="4"></td>
+            <td colspan="2">{{ moyenne_periode_1|floatformat:2 }} / 20</td>
+            <td colspan="2">{{ moyenne_periode_2|floatformat:2 }} / 20</td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Appréciation</td>
+            <td colspan="2">{{ appreciation_periode_1 }}</td>
+            <td colspan="2">{{ appreciation_periode_2 }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Rang</td>
+            <td colspan="2">{{ rang_periode_1 }} / {{ total_eleves }}</td>
+            <td colspan="2">{{ rang_periode_2 }} / {{ total_eleves }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Moyenne de classe</td>
+            <td colspan="2">{{ moyenne_classe_periode_1|floatformat:2 }} / 20</td>
+            <td colspan="2">{{ moyenne_classe_classe_periode_2|floatformat:2 }} / 20</td>
+        </tr>        
+    </tbody>
+</table>
+
+<div class="decision">
+    <p>Décision du Conseil de Classe :</p>
+    <p><strong>{{ decision_conseil }}</strong></p>
+</div>
+
+<div class="footer">
+    <p class="director" style="margin-left: 350px;">
+        Le Directeur.<br>
+        <span style="display: block; height: 80px;">&nbsp;</span> <!-- Espace pour la signature -->
+        RATEFIARIVONY Rado Heriniaina
+    </p>
+    <span style="display: block; height: 20px;">&nbsp;</span>
+    <p style="text-align: center;"><em>"Mettez votre confiance dans notre expérience"</em></p> <!-- Slogan en italique -->
+</div>
+
+</body>
+</html>

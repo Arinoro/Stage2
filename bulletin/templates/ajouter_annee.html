@@ -1,0 +1,111 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <style>
+        /* Conteneur principal pour centrer le formulaire */
+        .form-container {
+            display: flex;
+            justify-content: center;   /* Centrer horizontalement */
+            align-items: center;       /* Centrer verticalement */
+            min-height: 60vh;          /* Hauteur minimum pour centrer */
+        }
+
+        /* Style du contenu du formulaire */
+        .form-content {
+            background-color: #ffffff;          /* Fond blanc */
+            padding: 30px;                      /* Espacement interne */
+            border-radius: 12px;                /* Coins arrondis */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombre */
+            max-width: 600px;                   /* Largeur maximale */
+            width: 100%;                        /* S'adapte à l'écran */
+            border: 1px solid #007bff;          /* Bordure bleue */
+        }
+
+        /* Style des champs input */
+        .form-content input.form-control,
+        .form-content select.form-control {
+            border: 1px solid #ccc;             /* Bordure grise */
+            border-radius: 8px;                 /* Bordure arrondie */
+            padding: 10px;                      /* Espacement interne */
+            background-color: #f9f9f9;          /* Fond clair */
+            transition: background-color 0.3s, border-color 0.3s; /* Transition */
+        }
+
+        /* Effet au survol et focus */
+        .form-content input.form-control:focus,
+        .form-content select.form-control:focus {
+            border-color: #007bff;              /* Bordure bleue en focus */
+            background-color: #ffffff;          /* Fond blanc en focus */
+        }
+
+        /* Style des labels */
+        .form-content label {
+            font-weight: bold;                  /* Label en gras */
+            color: #333;                        /* Couleur sombre */
+            margin-bottom: 8px;                 /* Espacement bas */
+            display: block;                     /* Label en bloc */
+        }
+
+        /* Style des boutons */
+        .form-content .btn {
+            padding: 10px 20px;                 /* Espacement interne */
+            border-radius: 8px;                 /* Bordures arrondies */
+            transition: background-color 0.3s;  /* Transition au survol */
+        }
+
+        .form-content .btn-primary {
+            background-color: #007bff;          /* Bouton bleu */
+            border: none;
+        }
+
+        .form-content .btn-secondary {
+            background-color: #6c757d;          /* Bouton gris */
+            border: none;
+        }
+
+        .form-content .btn-primary:hover {
+            background-color: #0056b3;          /* Bleu plus foncé au survol */
+        }
+
+        .form-content .btn-secondary:hover {
+            background-color: #5a6268;          /* Gris plus foncé au survol */
+        }
+    </style>
+
+    <h2 class="mb-4 text-center">Ajouter une Année Scolaire</h2>
+
+    <div class="form-container">
+        <div class="form-content">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.anneescolaire.id_for_label }}">Année Scolaire</label>
+                    {{ form.anneescolaire }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.datedebut.id_for_label }}">Date Début</label>
+                    {{ form.datedebut }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.datefin.id_for_label }}">Date Fin</label>
+                    {{ form.datefin }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.encours.id_for_label }}">En cours</label>
+                    {{ form.encours }}
+                </div>
+                
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Ajouter
+                    </button>
+                    <a href="{% url 'annee_list' %}" class="btn btn-secondary ms-2">
+                        <i class="fas fa-arrow-left"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

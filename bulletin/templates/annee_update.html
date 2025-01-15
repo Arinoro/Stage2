@@ -1,0 +1,101 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <style>
+        /* Conteneur principal pour centrer le formulaire */
+        .form-container {
+            display: flex;
+            justify-content: center; /* Centrer horizontalement */
+            align-items: center;     /* Centrer verticalement */
+            min-height: 80vh;         /* S'assurer qu'il occupe au moins 80% de la hauteur de l'écran */
+            margin-top: 50px;
+        }
+
+        /* Style du contenu du formulaire */
+        #anneeFormContent {
+            background-color: #ffffff;          /* Fond blanc */
+            padding: 30px;                      /* Espacement interne */
+            border-radius: 12px;                /* Coins arrondis */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombre douce */
+            max-width: 600px;                   /* Largeur maximale */
+            width: 100%;                        /* S'adapte à la largeur */
+            border: 1px solid #007bff;          /* Bordure bleue */
+        }
+
+        /* Style des champs input et select */
+        #anneeForm input.form-control, 
+        #anneeForm select.form-control {
+            border: 2px solid #dee2e6;          /* Bordure légèrement grise */
+            border-radius: 6px;                 /* Coins légèrement arrondis */
+            padding: 12px;                      /* Espacement interne plus large */
+            background-color: #f8f9fa;          /* Fond clair */
+            font-size: 16px;                    /* Taille de texte confortable */
+            color: #495057;                     /* Texte sombre */
+            transition: all 0.3s ease;          /* Transitions fluides */
+        }
+
+        /* Effet focus : amélioration de la visibilité */
+        #anneeForm input.form-control:focus, 
+        #anneeForm select.form-control:focus {
+            border-color: #007bff;              /* Bordure bleue */
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.25); /* Ombre de focus */
+            background-color: #ffffff;          /* Fond blanc */
+            outline: none;                      /* Supprimer l'outline par défaut */
+        }
+
+        /* Style des labels */
+        #anneeForm label {
+            font-weight: 600;                   /* Légèrement plus gras */
+            color: #212529;                     /* Couleur sombre pour contraste */
+            margin-bottom: 10px;                /* Espacement avec les champs */
+            display: block;                     /* Occupation d'une ligne complète */
+        }
+
+        /* Boutons d'action */
+        #anneeForm .btn-primary {
+            background-color: #007bff;          /* Bleu */
+            border: none;                       /* Pas de bordure */
+            border-radius: 6px;                 /* Coins arrondis */
+            padding: 10px 20px;                 /* Espacement interne */
+            font-size: 16px;                    /* Taille confortable */
+            transition: background-color 0.3s;  /* Transition fluide */
+        }
+
+        #anneeForm .btn-primary:hover {
+            background-color: #0056b3;          /* Bleu plus foncé */
+        }
+
+        #anneeForm .btn-secondary {
+            padding: 10px 20px;                 /* Espacement interne */
+            border-radius: 6px;                 /* Coins arrondis */
+            background-color: #6c757d;          /* Gris */
+            border: none;                       /* Pas de bordure */
+            transition: background-color 0.3s;  /* Transition fluide */
+        }
+
+        #anneeForm .btn-secondary:hover {
+            background-color: #5a6268;          /* Gris plus foncé */
+        }
+    </style>
+
+    <h2 class="mb-4 text-center">Modifier l'Année Scolaire</h2>
+
+    <div class="form-container">
+        <div id="anneeFormContent">
+            <form id="anneeForm" method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                    <a href="{% url 'annee_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

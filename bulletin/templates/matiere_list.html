@@ -1,0 +1,140 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .action-icons i {
+        font-size: 1.2em;
+    }
+    .text-warning {
+        color: #ffc107;
+    }
+    .action-column {
+        text-align: center;
+    }
+    .table {
+        border-radius: 5px;
+        overflow: hidden;
+    }
+</style>
+
+<div class="container mt-3">
+    <h2 class="text-center">Liste des Matières</h2>
+
+    <!-- Ajouter une matière -->
+    <div class="d-flex justify-content-end mb-3">
+        {% if typeutilisateur == 'admin' or typeutilisateur == 'Responsable' or typeutilisateur == 'Directeur' %}
+        <a href="{% url 'matiere_create' %}">
+            <button type="button" class="btn btn-outline-primary">
+                Ajouter une Matière
+            </button>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtrer par classe -->
+    <form method="GET" class="mb-3">
+        <div class="row align-items-center">
+            <label for="class_id" class="col-auto col-form-label">Filtrer par Classe :</label>
+            <div class="col-auto">
+                <select name="class_id" id="class_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Sélectionnez une Classe --</option>
+                    {% for classe in classes %}
+                        <option value="{{ classe.idclasse }}" {% if selected_class_id and selected_class_id == classe.idclasse|stringformat:"s" %}selected{% endif %}>
+                            {{ classe.libelleclasse }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <!-- Vérification si aucune matière trouvée -->
+    {% if matieres.count == 0 %}
+        <div class="alert alert-warning text-center" role="alert">
+            Aucune matière trouvée pour cette classe et cette année.
+        </div>
+    {% else %}
+        <!-- Table des matières -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Nom de la Matière</th>
+                        <th>Coefficient</th>
+                        <th>Classe</th>
+                        <th class="action-column">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for matiere in matieres %}
+                    <tr>
+                        <td>{{ matiere.nommatiere }}</td>
+                        <td>{{ matiere.id_coeff }}</td>
+                        <td>{{ matiere.idclasse.libelleclasse }}</td>
+                        <td class="action-column action-icons">
+                            {% if typeutilisateur == 'Directeur' %}
+                            <a href="{% url 'matiere_update' matiere.pk %}" class="text-warning" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="#" class="text-danger ms-3 delete-matiere" data-id="{{ matiere.pk }}" data-name="{{ matiere.nommatiere }}" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Aucune action</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        $('.delete-matiere').on('click', function(event) {
+            event.preventDefault();
+            var matiereId = $(this).data('id');
+            var matiereName = $(this).data('name');
+            var row = $(this).closest('tr');
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Vous allez supprimer la matière '" + matiereName + "' !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "matiere_delete" 0 %}'.replace('0', matiereId),
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire('Supprimé !', 'La matière a été supprimée avec succès.', 'success').then(() => {
+                                    row.remove();
+                                });
+                            } else {
+                                Swal.fire('Erreur !', response.error || 'Une erreur s\'est produite lors de la suppression.', 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire('Erreur !', 'Une erreur s\'est produite. Veuillez réessayer.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <style>
+        /* Conteneur principal pour centrer le formulaire */
+        .form-container {
+            display: flex;
+            justify-content: center;   /* Centrer horizontalement */
+            align-items: center;       /* Centrer verticalement */
+        }
+
+        /* Style du contenu du formulaire */
+        #noteFormContent {
+            background-color: #ffffff;          /* Fond blanc pour le formulaire */
+            padding: 30px;                      /* Espacement interne */
+            border-radius: 12px;                /* Coins arrondis */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombre */
+            max-width: 600px;                   /* Largeur maximale */
+            width: 100%;                        /* S'adapte à la largeur de l'écran */
+            border: 1px solid #007bff; /* Bordure bleue */
+        }
+
+        /* Style des champs input */
+        #noteForm input.form-control, 
+        #noteForm select.form-control {
+            border: 1px solid #ccc;             /* Bordure grise */
+            border-radius: 8px;                 /* Bordure arrondie */
+            padding: 10px;                      /* Espacement interne */
+            background-color: #f9f9f9;          /* Fond clair */
+            transition: background-color 0.3s, border-color 0.3s; /* Transition */
+        }
+
+        /* Effet au survol et focus */
+        #noteForm input.form-control:focus, 
+        #noteForm select.form-control:focus {
+            border-color: #007bff;              /* Bordure bleue en focus */
+            background-color: #ffffff;          /* Fond blanc en focus */
+        }
+
+        /* Style des labels */
+        #noteForm label.form-label {
+            font-weight: bold;                  /* Label en gras */
+            color: #333;                        /* Couleur sombre pour les labels */
+            margin-bottom: 8px;                 /* Espacement en bas du label */
+            display: block;                     /* Faire occuper tout l'espace par le label */
+        }
+
+        /* Bouton retour à la liste */
+        #noteForm a.btn-secondary {
+            padding: 10px 20px;                 /* Espacement interne */
+            border-radius: 8px;                 /* Bordures arrondies */
+            background-color: #6c757d;          /* Couleur grise */
+            border: none;                       /* Retirer la bordure */
+            transition: background-color 0.3s;  /* Transition sur hover */
+        }
+
+        #noteForm a.btn-secondary:hover {
+            background-color: #5a6268;          /* Couleur plus foncée au survol */
+        }
+    </style>
+
+    <h2 class="mb-4 text-center">Modifier la Note</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form id="noteForm" method="POST">
+                {% csrf_token %}
+                
+                <div class="form-container">
+                    <div id="noteFormContent">
+                        <div class="mb-3">
+                            <label for="{{ form.eleve.id_for_label }}" class="form-label">Élève</label>
+                            {{ form.eleve }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.classe.id_for_label }}" class="form-label">Classe</label>
+                            {{ form.classe }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.codemat.id_for_label }}" class="form-label">Matière</label>
+                            {{ form.codemat }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.note.id_for_label }}" class="form-label">Note</label>
+                            {{ form.note }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.periode.id_for_label }}" class="form-label">Période</label>
+                            {{ form.periode }}
+                        </div>
+
+                        <div class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                            
+                            <a href="{% url 'note_list' %}" class="btn btn-secondary ms-2">
+                                <i class="fas fa-arrow-left"></i> Retour à la liste
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Zone pour afficher le message d'erreur -->
+            <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% endblock %}

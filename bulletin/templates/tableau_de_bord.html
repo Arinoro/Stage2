@@ -1,0 +1,167 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <style>
+        .chart-flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .chart-flex .chart-container {
+            flex: 1 1 calc(50% - 20px);
+            max-width: 48%;
+            height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-flex .chart-container {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-center">Tableau de Bord</h1>
+        <div>
+            <a href="{% url 'annee_list' %}" class="btn btn-outline-primary">Gérer l'Année Scolaire</a>
+        </div>
+    </div>
+
+    <!-- Affichage des informations principales -->
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        <div class="col">
+            <div class="card widget-card p-3 shadow">
+                <i class="fa fa-chalkboard-teacher fa-3x mb-3 text-primary"></i>
+                <div class="stats">
+                    <h5><strong>{{ nombre_classes }}</strong></h5>
+                    <span>Classes</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card widget-card p-3 shadow">
+                <i class="fa fa-users fa-3x mb-3 text-success"></i>
+                <div class="stats">
+                    <h5><strong>{{ nombre_eleves }}</strong></h5>
+                    <span>Elèves</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card widget-card p-3 shadow">
+                <i class="fa fa-book-open fa-3x mb-3 text-danger"></i>
+                <div class="stats">
+                    <h5><strong>{{ nombre_matieres }}</strong></h5>
+                    <span>Matières</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card widget-card p-3 shadow">
+                <i class="fa fa-id-badge fa-3x mb-3 text-info"></i>
+                <div class="stats">
+                    <h5><strong>{{ nombre_numeros }}</strong></h5>
+                    <span>Numéros</span>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    {% if annee_active %}
+        <div class="chart-flex">
+            <!-- Graphique des moyennes -->
+            <div class="chart-container">
+                <canvas id="moyenneChart"></canvas>
+            </div>
+            <!-- Graphique des coefficients -->
+            <div class="chart-container">
+                <canvas id="coefficientsChart"></canvas>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center mt-4">
+            Aucune année scolaire active n'a été trouvée. Veuillez activer une année scolaire.
+        </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Graphique des Moyennes
+    var chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
+    var chartValues = JSON.parse('{{ chart_values|escapejs }}');
+
+    var ctx = document.getElementById('moyenneChart').getContext('2d');
+    var moyenneChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Moyenne des Classes',
+                data: chartValues,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Graphique des Moyennes des Classes'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 20
+                }
+            }
+        }
+    });
+
+    // Graphique des Coefficients
+    var chartData = JSON.parse('{{ chart_data|escapejs }}');
+    var labels = chartData.map(item => item.nom);
+    var data = chartData.map(item => item.coefficient);
+
+    var ctxCoefficients = document.getElementById('coefficientsChart').getContext('2d');
+    var coefficientsChart = new Chart(ctxCoefficients, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)',
+                    'rgba(255, 159, 64, 0.5)'
+                ]
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'right'
+                },
+                title: {
+                    display: true,
+                    text: 'Répartition des Coefficients des Matières'
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

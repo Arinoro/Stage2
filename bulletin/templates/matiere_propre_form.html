@@ -1,0 +1,120 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container mt-4">
+    <style>
+        /* Style du conteneur pour centrer le formulaire */
+        .form-container {
+            display: flex;
+            justify-content: center;  /* Centrer horizontalement */
+            align-items: center;      /* Centrer verticalement */
+            padding: 20px;            /* Espacement autour du conteneur pour éviter que le formulaire touche les bords */
+        }
+    
+        /* Style du formulaire avec un fond */
+        #matiere-form {
+            background-color: #ffffff; /* Fond blanc pour le formulaire */
+            padding: 20px;             /* Marges internes autour du formulaire */
+            border-radius: 10px;       /* Coins arrondis */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre pour un effet de relief */
+            max-width: 500px;          /* Largeur maximale du formulaire */
+            width: 100%;               /* S'adapte à la largeur du conteneur */
+            border: 1px solid #007bff; /* Bordure bleue */
+            border-radius: 15px;       /* Bordure avec des coins arrondis */
+        }
+    
+        /* Style des champs input */
+        #matiere-form input.form-control, 
+        #matiere-form select.form-control {
+            border: 1px solid #ccc;             /* Bordure grise */
+            border-radius: 8px;                 /* Bordure arrondie */
+            padding: 10px;                      /* Espacement interne */
+            background-color: #f9f9f9;          /* Fond clair */
+            transition: background-color 0.3s, border-color 0.3s; /* Transition pour effets */
+        }
+    
+        /* Effet au survol et focus */
+        #matiere-form input.form-control:focus, 
+        #matiere-form select.form-control:focus {
+            border-color: #007bff;              /* Bordure bleue en focus */
+            background-color: #ffffff;          /* Fond blanc en focus */
+            outline: none;                      /* Retirer l'effet de focus par défaut */
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Légère ombre bleue autour en focus */
+        }
+    </style>
+    
+    
+    <h2 class="mb-4 text-center">Formulaire de Matière</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="form-container">
+                <form id="matiere-form" method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.nommatiere.label_tag }}
+                        {{ form.nommatiere }}
+                        {{ form.nommatiere.errors }}
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                        <a href="{% url 'matiere_propre_list' %}" class="btn btn-secondary ms-2">
+                            <i class="fas fa-arrow-left"></i> Retour à la liste
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+    $('#matiere-form').on('submit', function(event) {
+        event.preventDefault();  // Empêche le rechargement de la page lors de la soumission
+        var formData = $(this).serialize();  // Sérialise les données du formulaire
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "matiere_propre_create_ajax" %}',  // URL de la vue AJAX pour créer la matière
+            data: formData,
+            success: function(response) {
+                // Si la création est réussie
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Succès',
+                        text: response.message,
+                        confirmButtonText: 'OK',
+                    }).then(function() {
+                        // Redirection après succès
+                        window.location.href = '{% url "matiere_propre_list" %}';
+                    });
+                } else {
+                    // Afficher une erreur si la matière existe déjà ou autre erreur
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: response.message || 'Une erreur est survenue.',
+                        confirmButtonText: 'OK',
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                // Gestion des erreurs de requête
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: 'Une erreur s\'est produite. Veuillez réessayer.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+    });
+});
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,120 @@
+{% load static %}
+<!doctype html>
+<html class="no-js" lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Connexion</title>
+    <meta name="description" content="Formulaire de connexion">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Liens CSS -->
+    <link href="{% static 'css/fontawesome.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/cs-skin-elastic.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/scss/style.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet">
+
+    <style>
+        .card {
+            width: 35%; /* Réduisez la largeur du formulaire */
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    
+        .card-header {
+            background-color: #0000;
+            color: black;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+    
+        .card-header img {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    
+        .card-header h3 {
+            margin-left: 60px; /* Décale le titre pour ne pas chevaucher l'image */
+        }
+    
+        .card-body {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+    
+        .form-group input {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+    
+        .form-group input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.6);
+        }
+    
+        .btn-success {
+            transition: background-color 0.3s ease;
+        }
+    
+        .btn-success:hover {
+            background-color: #45a049;
+        }
+    </style>
+    
+</head>
+<body class="bg-dark">
+
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <!-- Logo -->
+                <img src="{% static 'img/logoCPE.jpg' %}" alt="Logo" class="logo-img">
+                <h3>Connexion</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Champ Nom d'utilisateur -->
+                    <div class="form-group">
+                        {{ form.username.label_tag }}
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <small class="text-danger">{{ form.username.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <!-- Champ Mot de passe -->
+                    <div class="form-group">
+                        {{ form.password.label_tag }}
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <small class="text-danger">{{ form.password.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bouton Connexion -->
+                    <button type="submit" class="btn btn-success btn-block">Se connecter</button>
+
+                    <!-- Lien Inscription -->
+                    <hr>
+                    <p class="text-center">Pas encore de compte ? <a href="{% url 'signup' %}" class="text-primary">S'inscrire ici</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

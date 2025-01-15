@@ -1,0 +1,12 @@
+<!-- templates/note_form.html -->
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+    <h2>Formulaire de Note</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Enregistrer</button>
+    </form>
+    <a href="{% url 'note_list' %}">Retour à la liste</a>
+{% endblock %}

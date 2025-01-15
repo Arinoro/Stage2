@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Mon Profil</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <!-- Image de profil -->
+                        <div class="text-center">
+                            {% if user.imguser %}
+                                <img src="{{ user.imguser.url }}" alt="Image de profil" class="img-fluid rounded-circle" style="width: 150px; height: 150px;" />
+                            {% else %}
+                                <img src="{% static 'img/default-avatar.png' %}" alt="Image de profil par défaut" class="img-fluid rounded-circle" style="width: 150px; height: 150px;" />
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <!-- Informations utilisateur -->
+                        <p><strong>Pseudonyme :</strong> {{ user.pseudoutilisateur }}</p>
+                        <p><strong>Nom :</strong> {{ user.nomutilisateur }}</p>
+                        <p><strong>Type :</strong> {{ user.typeutilisateur }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
