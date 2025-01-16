@@ -236,8 +236,17 @@ def tableau_de_bord_chart(request):
         chart_values = []  # Moyennes des classes
         chart_data = []  # Coefficients des matières
 
+
+        classList = Classe.objects.filter(ance__idannee=active_annee)
+        alreadyExistedClass = []
+
         # Calcul des moyennes des classes
-        for classe in Classe.objects.filter(ance__idannee=active_annee):
+        for classe in classList:
+            if classe.idclasse in alreadyExistedClass:
+                continue
+
+            alreadyExistedClass.append(classe.idclasse)
+
             notes_classe = Note.objects.filter(ance__idclasse=classe, ance__idannee=active_annee)
             total_notes_ponderees = 0
             total_coefficients = 0
@@ -274,9 +283,9 @@ def tableau_de_bord_chart(request):
         'nombre_eleves': nombre_eleves,
         'nombre_matieres': nombre_matieres,
         'nombre_numeros': nombre_numeros,
-        'chart_labels': chart_labels,
-        'chart_values': chart_values,
-        'chart_data': chart_data,
+        'chart_labels': json.dumps(chart_labels),
+        'chart_values': json.dumps(chart_values),
+        'chart_data': json.dumps(chart_data),
         'annee_active': active_annee,
     }
 
