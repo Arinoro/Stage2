@@ -226,7 +226,9 @@ def tableau_de_bord_chart(request):
 
     # Calcul des informations principales (en fonction de l'année active)
     if active_annee:
-        nombre_classes = Classe.objects.filter(ance__idannee=active_annee).count()
+        classList = Classe.objects.filter(ance__idannee=active_annee)
+
+        nombre_classes = 0
         nombre_eleves = Eleve.objects.filter(ance__idannee=active_annee).count()
         nombre_matieres = Matiere.objects.count()  # Les matières peuvent ne pas dépendre de l'année
         nombre_numeros = Ance.objects.filter(idannee=active_annee, numero__isnull=False).count()
@@ -237,7 +239,6 @@ def tableau_de_bord_chart(request):
         chart_data = []  # Coefficients des matières
 
 
-        classList = Classe.objects.filter(ance__idannee=active_annee)
         alreadyExistedClass = []
 
         # Calcul des moyennes des classes
@@ -245,6 +246,7 @@ def tableau_de_bord_chart(request):
             if classe.idclasse in alreadyExistedClass:
                 continue
 
+            nombre_classes = nombre_classes + 1
             alreadyExistedClass.append(classe.idclasse)
 
             notes_classe = Note.objects.filter(ance__idclasse=classe, ance__idannee=active_annee)
