@@ -68,7 +68,7 @@ def login_view(request):
 def index_view(request):
     """
     Vue pour la page d'accueil.
-    
+
     """
     annee_active = Annee.objects.filter(encours=True).first()
     context = {
@@ -89,7 +89,7 @@ def logout_view(request):
 @login_required
 def profil_utilisateur(request):
     utilisateur = request.user  # Utilisateur actuellement connecté
-    
+
     # Récupérer l'image de profil
     img_url = utilisateur.imguser.url if utilisateur.imguser else 'img/default-avatar.png'
 
@@ -120,13 +120,13 @@ def profil_utilisateur(request):
 #     else:
 #         # Filtrer les relations globales liées à l'année active via le modèle Ance
 #         ance_relations = Ance.objects.filter(idannee=annee_active)
-        
+
 #         # Récupérer les classes uniques associées à cette année scolaire
 #         classes_active = ance_relations.values_list('idclasse', flat=True).distinct()
 
 #         # Filtrer les matières en fonction des classes liées à l'année active
 #         matieres = Matiere.objects.filter(idclasse__in=classes_active)
-        
+
 #         total_coeff = sum(matiere.id_coeff for matiere in matieres)
 
 #         # Comptage des classes
@@ -158,7 +158,7 @@ def profil_utilisateur(request):
 #                         note = note_matiere.note
 #                         total_notes_ponderees_classe += note * coefficient
 #                         total_coefficients_classe += coefficient
-                
+
 #                 if total_coefficients_classe > 0:
 #                     moyenne_eleve_classe = total_notes_ponderees_classe / total_coefficients_classe
 #                     moyennes_eleves_classe.append(moyenne_eleve_classe)
@@ -171,7 +171,7 @@ def profil_utilisateur(request):
 
 #             # Arrondir la moyenne à 2 décimales
 #             moyenne_classe = round(moyenne_classe, 2)
-            
+
 #             moyennes_classe.append({
 #                 'classe': Classe.objects.get(idclasse=classe_id).libelleclasse,  # Nom de la classe
 #                 'moyenne_classe': moyenne_classe
@@ -186,7 +186,7 @@ def profil_utilisateur(request):
 #         }
 #         for matiere in matieres
 #     ]
-    
+
 #     # Préparer les données pour le graphique
 #     chart_labels = [moyenne['classe'] for moyenne in moyennes_classe]
 #     chart_values = [moyenne['moyenne_classe'] for moyenne in moyennes_classe]
@@ -230,7 +230,7 @@ def tableau_de_bord_chart(request):
         nombre_eleves = Eleve.objects.filter(ance__idannee=active_annee).count()
         nombre_matieres = Matiere.objects.count()  # Les matières peuvent ne pas dépendre de l'année
         nombre_numeros = Ance.objects.filter(idannee=active_annee, numero__isnull=False).count()
-        
+
         # Initialisation des données pour les graphiques
         chart_labels = []  # Noms des classes
         chart_values = []  # Moyennes des classes
@@ -311,7 +311,7 @@ def activer_annee(request, pk):
 
     # Ajouter un message de succès
     messages.success(request, f"L'année scolaire {annee.anneescolaire} a été activée avec succès.")
-    
+
     # Rediriger vers la liste des années
     return redirect('annee_list')
 
@@ -320,14 +320,14 @@ def activer_annee(request, pk):
 def liste_annees(request):
     # Récupère l'année scolaire activée
     annee_active = Annee.annee_active()  # Utilise la méthode statique pour obtenir l'année active
-    
+
     # Si une année active existe, filtrer les objets Ance par cette année
     if annee_active:
         annees_scolaires = Ance.objects.filter(idannee=annee_active)
     else:
         annees_scolaires = []
         messages.warning(request, "Aucune année scolaire active trouvée.")
-    
+
     # Filtrer et trier les années scolaires (afficher uniquement l'année active et inactive)
     annees_inactives = Annee.objects.filter(encours=0)  # Années inactives (encours=False)
 
@@ -364,11 +364,11 @@ class AnneeUpdateView(UpdateView):
 def supprimer_annee_ajax(request, pk):
     if request.method == 'POST':
         annee = get_object_or_404(Annee, pk=pk)
-        
+
         # Assurez-vous que l'année scolaire active ne peut pas être supprimée
         if annee.encours:
             return JsonResponse({'success': False, 'error': 'Impossible de supprimer l\'année scolaire active.'})
-        
+
         annee.delete()
         return JsonResponse({'success': True})
 
@@ -441,7 +441,7 @@ def bulletin_update(request, pk):
     Mettre à jour un bulletin existant.
     """
     bulletin = get_object_or_404(Bulletin, pk=pk)
-    
+
     if request.method == 'POST':
         eleve_id = request.POST.get('eleve')
         classe_id = request.POST.get('classe')
@@ -525,10 +525,10 @@ def bulletin_pdf(request, nummatricule, trimester):
 def bulletin_par_classe(request):
     # Récupérer l'ID de la classe sélectionnée
     selected_class_id = request.GET.get('class_id')
-    
+
     # Récupérer toutes les classes
     classes = Classe.objects.all()
-    
+
     # Récupérer l'année scolaire active
     annee_active = Annee.objects.filter(encours=True).first()
 
@@ -539,13 +539,13 @@ def bulletin_par_classe(request):
     if selected_class_id and annee_active:
         # Récupérer la classe sélectionnée
         selected_class = get_object_or_404(Classe, idclasse=selected_class_id)
-        
+
         # Récupérer les élèves associés à la classe et à l'année active
         eleves = Eleve.objects.filter(
             ance__idclasse=selected_class,
             ance__idannee=annee_active
         ).distinct()
-        
+
         for eleve in eleves:
             ance = Ance.objects.filter(nummatricule=eleve, idclasse=selected_class).first()
             if ance:
@@ -563,10 +563,10 @@ def bulletin_par_classe(request):
                             coefficient = matiere.id_coeff
                             total_notes_ponderees += note.note * coefficient
                             total_coefficients += coefficient
-                    
+
                     moyenne_trimestre = total_notes_ponderees / total_coefficients if total_coefficients > 0 else None
                     moyennes[f"{trimestre}ème_trimestre"] = moyenne_trimestre
-                
+
                 eleve_data.append({
                     'eleve': eleve,
                     'moyennes': moyennes,
@@ -813,7 +813,7 @@ def tableau_notes(request):
 def coefficient_list(request):
     coefficients = Coefficient.objects.all()
     return render(request, 'coefficient_list.html', {'coefficients': coefficients})
-    
+
 
 def coefficient_create(request):
     if request.method == 'POST':
@@ -921,7 +921,7 @@ def matiere_update(request, pk):
             messages.error(request, "Le formulaire contient des erreurs.")
     else:
         form = MatiereForm(instance=matiere)
-    
+
     return render(request, 'matiere_form.html', {'form': form, 'matiere': matiere})
 
 
@@ -942,7 +942,7 @@ def matiere_delete(request, pk):
 def matiere_propre_list(request):
     # Récupère l'année scolaire activée
     annee_active = Annee.objects.filter(encours=True).first()  # L'année active est celle avec encours=True
-    
+
     if annee_active:
         # Filtrer les matières propres qui sont liées à l'année scolaire active
         matieres_propres = MatierePropre.objects.filter(
@@ -950,7 +950,7 @@ def matiere_propre_list(request):
         ).distinct()  # Utilise distinct pour éviter les doublons dans la liste des matières
     else:
         matieres_propres = MatierePropre.objects.none()  # Si aucune année active, ne retourne aucune matière
-        
+
     return render(request, 'matiere_propre_list.html', {'matieres_propres': matieres_propres})
 
 
@@ -976,7 +976,7 @@ def matiere_propre_create_ajax(request):
             return JsonResponse({'success': True, 'message': 'Matière ajoutée avec succès.'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
-    
+
     return JsonResponse({'success': False, 'message': 'Méthode non autorisée.'})
 
 def matiere_propre_create_update_ajax(request, pk=None):
@@ -986,13 +986,13 @@ def matiere_propre_create_update_ajax(request, pk=None):
             form = MatierePropreForm(request.POST, instance=matiere_propre)
         else:
             form = MatierePropreForm(request.POST)
-        
+
         if form.is_valid():
             matiere_propre = form.save()
             return JsonResponse({'success': True, 'message': 'Matière sauvegardée avec succès!'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
-    
+
     # Si la méthode n'est pas POST, nous voulons afficher le formulaire
     else:
         if pk:
@@ -1000,13 +1000,13 @@ def matiere_propre_create_update_ajax(request, pk=None):
             form = MatierePropreForm(instance=matiere_propre)
         else:
             form = MatierePropreForm()
-        
+
     return render(request, 'matiere_propre_form.html', {'form': form, 'matiere_propre': matiere_propre})
 # def etudiants_par_annee(request,id):
-    
+
 def matiere_propre_update(request, pk):
     matiere_propre = get_object_or_404(MatierePropre, pk=pk)
-    
+
     if request.method == 'POST':
         form = MatierePropreForm(request.POST, instance=matiere_propre)
         if form.is_valid():
@@ -1019,7 +1019,7 @@ def matiere_propre_update(request, pk):
                 return redirect('matiere_propre_list')
     else:
         form = MatierePropreForm(instance=matiere_propre)
-    
+
     return render(request, 'matiere_propre_form.html', {'form': form})
 
 def matiere_propre_delete(request, pk):
@@ -1077,14 +1077,14 @@ def note_list(request):
         selected_periode = None
 
     # Traitement de la création de notes via une requête POST (AJAX)
-    if request.method == 'POST' and request.is_ajax():
+    if request.method == 'POST':
         data = request.POST
         notes = []
         for key, value in data.items():
             if key.startswith("note_") and value.strip():
                 matricule = key.split("_")[1]
                 eleve = Ance.objects.filter(
-                    nummatricule__num=matricule,
+                    nummatricule=matricule,
                     idclasse=selected_class,
                     idannee=active_annee
                 ).first()
@@ -1311,7 +1311,7 @@ def ajax_get_eleves_par_classe(request):
     classe_id = request.GET.get('classe_id')
     if not classe_id:
         return JsonResponse({'error': 'ID de classe manquant'}, status=400)
-    
+
     ance_list = Ance.objects.filter(idclasse=classe_id)
     if not ance_list.exists():
         return JsonResponse({'error': 'Aucun élève trouvé pour cette classe'}, status=404)
@@ -1457,23 +1457,23 @@ class AnceListView(ListView):
     model = Ance
     template_name = 'ance_list.html'
     context_object_name = 'ances'
-    
+
 class AnceCreateView(CreateView):
     model = Ance
     form_class = AnceForm
     template_name = 'ance_form.html'
     success_url = reverse_lazy('ance_list')
-    
+
 class AnceUpdateView(UpdateView):
     model = Ance
     form_class = AnceForm
     template_name = 'ance_form.html'
-    success_url = reverse_lazy('ance_list')    
-    
+    success_url = reverse_lazy('ance_list')
+
 class AnceDeleteView(DeleteView):
     model = Ance
     template_name = 'ance_confirm_delete.html'
-    success_url = reverse_lazy('ance_list')    
+    success_url = reverse_lazy('ance_list')
 
 def ance_list(request):
     # Récupérer l'année scolaire active

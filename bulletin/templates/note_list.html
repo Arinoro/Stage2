@@ -59,7 +59,7 @@
                 <tr>
                     <td>{{ eleve.nummatricule.nom }} {{ eleve.nummatricule.prenom }}</td>
                     <td>
-                        <input type="number" step="0.01" name="note_{{ eleve.nummatricule.num }}" class="form-control">
+                        <input type="number" step="0.01" name="note_{{ eleve.nummatricule.nummatricule }}" class="form-control">
                     </td>
                 </tr>
                 {% empty %}
@@ -82,7 +82,7 @@
             form.addEventListener('submit', function (event) {
                 event.preventDefault();
                 const formData = new FormData(form);
-                fetch(form.getAttribute('data-url'), {
+                fetch(form.getAttribute('data-url') + window.location.search, {
                     method: 'POST',
                     body: formData,
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
