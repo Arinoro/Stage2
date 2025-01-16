@@ -1167,86 +1167,55 @@ def note_affichage(request):
     # Récupérer l'année scolaire active
     annee_active = Annee.objects.filter(encours=True).first()
 
-    # Filtrer les notes uniquement pour l'année active, si applicable
-    if annee_active:
-        # Filtrer les notes en fonction de l'année scolaire active et de l'élève
+    anceList = Ance.objects.filter(
+        idannee=annee_active.idannee
+    )
+
+    result = []
+
+    for ance in anceList:
+        matieres = Matiere.objects.filter(
+            idclasse__idclasse=ance.idclasse.idclasse
+        )
+
         notes = Note.objects.filter(
-            ance__idannee=annee_active
-        ).select_related(
-            'ance__nummatricule', 'ance__idclasse', 'codemat'
+            ance__idnace=ance.idnace
         )
-    else:
-        notes = Note.objects.select_related(
-            'ance__nummatricule', 'ance__idclasse', 'codemat'
-        )
+        
+        matieres_note_list = []
+        for matiere in matieres:
+            noteList = list(filter(lambda note: note.codemat.codemat == matiere.codemat, notes))
 
-    # Construire un tableau des données des notes
-    notes_table = []
-    for note in notes:
-        eleve_nom = (
-            f"{note.ance.nummatricule.nom} {note.ance.nummatricule.prenom}"
-            if note.ance and note.ance.nummatricule else "Inconnu"
-        )
-        classe_libelle = (
-            note.ance.idclasse.libelleclasse
-            if note.ance and note.ance.idclasse else "Inconnue"
-        )
-        matiere_nom = note.codemat.nommatiere if note.codemat else "Inconnue"
-        trimestre = note.periode if note.periode else "Inconnu"  # Ajouter l'attribut 'periode' pour le trimestre
+            if not noteList:
+                matieres_note_list.append({
+                    'idnote': None,
+                    'periode': None,
+                    'note': None,
+                    'matiere': matiere.nommatiere
+                })
+            else:
+                for item in noteList:
+                    matieres_note_list.append({
+                        'idnote': item.idnote,
+                        'periode': item.periode,
+                        'note': item.note,
+                        'matiere': matiere.nommatiere
+                    })
 
-        notes_table.append({
-            'idnote': note.idnote,
-            'eleve_nom': eleve_nom,
-            'classe_libelle': classe_libelle,
-            'matiere_nom': matiere_nom,
-            'note': note.note,
-            'periode': trimestre,  # Inclure le trimestre dans les données
-        })
-
-    # Détecter les doublons (élèves ayant plusieurs notes dans la même classe)
-    doublons = Note.objects.values(
-        'ance__nummatricule', 'ance__nummatricule__nom', 'ance__nummatricule__prenom', 'ance__idclasse', 'ance__idclasse__libelleclasse'
-    ).annotate(
-        note_count=Count('idnote')
-    ).filter(note_count__gt=1)
-
-    # Regrouper les matières et notes par élève
-    doublons_avec_matiere_et_notes = {}
-    for doublon in doublons:
-        # Récupérer les notes et matières pour l'élève ayant des doublons
-        notes_doublon = Note.objects.filter(
-            ance__nummatricule=doublon['ance__nummatricule'],
-            ance__idclasse=doublon['ance__idclasse']
-        ).select_related('codemat')
-
-        matieres_notes = []
-        for note in notes_doublon:
-            matieres_notes.append({
-                'matiere': note.codemat.nommatiere if note.codemat else "Inconnue",
-                'note': note.note,
-                'periode': note.periode,  # Inclure le trimestre ici aussi
-            })
-
-        # Ajouter les données regroupées sous le nom de l'élève
-        nom_eleve = f"{doublon['ance__nummatricule__nom']} {doublon['ance__nummatricule__prenom']}"
-        if nom_eleve not in doublons_avec_matiere_et_notes:
-            doublons_avec_matiere_et_notes[nom_eleve] = {
-                'eleve_nom': nom_eleve,
-                'classe_libelle': doublon['ance__idclasse__libelleclasse'],
-                'matieres_notes': matieres_notes,
-            }
-        else:
-            doublons_avec_matiere_et_notes[nom_eleve]['matieres_notes'].extend(matieres_notes)
+        result.append({
+            'eleve_nom': ance.nummatricule.nom,
+            'classe_libelle': ance.idclasse.libelleclasse,
+            'matieres_notes': matieres_note_list,
+        })        
 
     # Ajouter le type d'utilisateur connecté au contexte
     typeutilisateur = getattr(request.user, 'typeutilisateur', None)
 
     # Passer les données au template
     context = {
-        'notes_table': notes_table,
-        'doublons_avec_matiere_et_notes': doublons_avec_matiere_et_notes,  # Ajouter les doublons avec matières et notes
+        'doublons_avec_matiere_et_notes': result,  # Ajouter les doublons avec matières et notes
         'typeutilisateur': typeutilisateur,
-        'annee_active': annee_active,
+        'annee_active': annee_active
     }
     return render(request, 'note_affichage.html', context)
 
@@ -1366,7 +1335,7 @@ def note_update(request, pk):
         form = NoteForm(request.POST, instance=note)
         if form.is_valid():
             form.save()
-            return redirect('note_list')
+            return redirect('note_affichage')
     else:
         form = NoteForm(instance=note)
     return render(request,  'note_form.html', {'form': form})

@@ -41,7 +41,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for doublon in doublons_avec_matiere_et_notes.values %}
+                {% for doublon in doublons_avec_matiere_et_notes %}
                     {% for matiere_note in doublon.matieres_notes %}
                     <tr>
                         {% if forloop.first %}
@@ -50,16 +50,18 @@
                             <td rowspan="{{ doublon.matieres_notes|length }}">{{ doublon.classe_libelle }}</td>
                         {% endif %}
                         <td>{{ matiere_note.matiere }}</td>
-                        <td>{{ matiere_note.note }}</td>
-                        <td>{{ matiere_note.periode }}</td>
+                        <td>{{ matiere_note.note|default:'-'}}</td>
+                        <td>{{ matiere_note.periode|default:'-' }}</td>
                         <td>
                             {% if typeutilisateur == 'Directeur' %}
-                                <a href="" class="text-warning" title="Modifier">
+                                {% if matiere_note.idnote %}
+                                <a href="/bulletin/note/{{matiere_note.idnote}}/edit/" class="text-warning" title="Modifier">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <a href="#" class="text-danger ms-3 delete-note" data-id="{{ matiere_note.idnote }}" data-name="{{ doublon.eleve_nom }}" title="Supprimer">
                                     <i class="fas fa-trash"></i>
                                 </a>
+                                {% endif %}
                             {% else %}
                                 <span class="text-muted">Aucune action</span>
                             {% endif %}
