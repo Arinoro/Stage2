@@ -184,40 +184,40 @@
                 <ul class="nav navbar-nav">
                     <li class="active">
                         <a href="{% url 'tableau_de_bord_chart' %}">
-                            <i class="menu-icon fa fa-home"></i>Acceuil
+                            <i class="menu-icon fa-solid fa-home"></i>Acceuil
                         </a>
                     </li>
                     {% comment %} <li class="active">
                         <a href="{% url 'annee_list' %}">
-                            <i class="menu-icon fa fa-calendar"></i>Année Scolaire
+                            <i class="menu-icon fa-solid fa-calendar"></i>Année Scolaire
                         </a>
                     </li> {% endcomment %}
                     
                     <li class="menu-title">Espace de travail</li><!-- /.menu-title -->
                     <li>
                         <a href="{% url 'matiere_list' %}">
-                            <i class="menu-icon fa fa-percentage"></i>Matières
+                            <i class="menu-icon fa-solid fa-percentage"></i>Matières
                         </a>
                     </li>
                     <li>
                         <a href="{% url 'note_affichage' %}">
-                            <i class="menu-icon fa fa-clipboard"></i>Notes
+                            <i class="menu-icon fa-solid fa-clipboard"></i>Notes
                         </a>
                     </li>
                     <li>
                         <a href="{% url 'bulletin_par_classe' %}">
-                            <i class="menu-icon fa fa-file-alt"></i>Bulletins des notes
+                            <i class="menu-icon fa-solid fa-file-alt"></i>Bulletins des notes
                         </a>
                     </li>
                     <li>
                         <a href="{% url 'eleves_par_classe' %}">
-                            <i class="menu-icon fa fa-users"></i>Liste des élèves
+                            <i class="menu-icon fa-solid fa-users"></i>Liste des élèves
                         </a>
                     </li>
                     <!-- Nouveau menu pour le profil utilisateur -->
                     <li class="dropdown">
                         <a href="{% url 'profil_utilisateur' %}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <i class="menu-icon fa fa-user"></i> Mon Compte <span class="caret"></span>
+                            <i class="menu-icon fa-solid fa-user"></i> Mon Compte <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">
                             <!-- Lien vers le profil de l'utilisateur -->
@@ -235,7 +235,7 @@
                             <!-- Lien vers la déconnexion -->
                             <li>
                                 <a href="{% url 'logout' %}">
-                                    <i class="fa fa-power-off"></i> Déconnexion
+                                    <i class="fa-solid fa-power-off"></i> Déconnexion
                                 </a>
                             </li>
                         </ul>
@@ -259,7 +259,7 @@
                     <a class="navbar-brand hidden" href="./">
                         <img src="{% static 'img/logoCPE.jpg' %}" alt="Logo" class="logo-img-small">
                     </a>
-                    <a id="menuToggle" class="menutoggle"><i class="fa fa-bars"></i></a>
+                    <a id="menuToggle" class="menutoggle"><i class="fa-solid fa-bars"></i></a>
                 </div>
             </div>
             <div class="top-right">
@@ -274,11 +274,11 @@
                     {% endif %}
                     
                     <div class="header-left">
-                        <button class="search-trigger"><i class="fa fa-search"></i></button>
+                        <button class="search-trigger"><i class="fa-solid fa-search"></i></button>
                         <div class="form-inline">
                             <form class="search-form">
                                 <input class="form-control mr-sm-2" type="text" placeholder="Search ..." aria-label="Search">
-                                <button class="search-close" type="submit"><i class="fa fa-close"></i></button>
+                                <button class="search-close" type="submit"><i class="fa-solid fa-close"></i></button>
                             </form>
                         </div>
                     </div>
@@ -286,7 +286,7 @@
                     <!-- Déconnexion avec icône stylisé et centré -->
                     <div class="logout-container d-flex justify-content-center align-items-center">
                         <a href="{% url 'logout' %}" class="nav-link" id="logout-link">
-                            <i class="fa fa-power-off fa-lg"></i> Déconnexion
+                            <i class="fa-solid fa-power-off fa-lg"></i> Déconnexion
                         </a>
                     </div>
                 </div>
@@ -349,7 +349,7 @@
 
 <!-- Lien de déconnexion -->
 <a href="{% url 'logout' %}" class="nav-link" id="logout-link">
-    <i class="fa fa-power-off"></i> Déconnexion
+    <i class="fa-solid fa-power-off"></i> Déconnexion
 </a>
 
 <script>
